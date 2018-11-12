@@ -1,6 +1,8 @@
 Rails.application.routes.draw do
 
   post "/create", controller: "account", action:"create"
+  put "/addDetails", controller:"account", action:"add_details"
+  post "/login" , controller:"login", action:"login"
 
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".
