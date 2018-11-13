@@ -49,8 +49,7 @@ RSpec.describe "AccountController", type: :request do
           "ACCEPT" => "application/json",     # This is what Rails 4 accepts
           "token" => "#{token}"
       }
-      put "/addDetails",{:details => {"name":"Vishnu Pillai","bio":"backend developer"}},headers
-      user1.update_attributes(name:"Vishnu Pillai","bio":"backend developer")
+      put "/account/#{user1.id}",{:details => {"name":"Vishnu Pillai","bio":"backend developer"}},headers
       expect(JSON.parse(response.body)["name"]).to eql("Vishnu Pillai")
     end
   end
