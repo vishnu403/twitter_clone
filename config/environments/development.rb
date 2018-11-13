@@ -45,7 +45,7 @@ Rails.application.configure do
           bucket:'twitter-profile-images',
           access_key_id: 'AKIAIOWM4KUWH3GSOK5Q',
           secret_access_key:'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' ,
-          s3_region: 'Asia Pacific (Mumbai)',
+          s3_region: 'ap-south-1',
       }
   }
 
