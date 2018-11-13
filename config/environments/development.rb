@@ -38,4 +38,16 @@ Rails.application.configure do
 
   # Raises error for missing translations
   # config.action_view.raise_on_missing_translations = true
+  #
+  config.paperclip_defaults = {
+      storage: :s3,
+      s3_credentials: {
+          bucket:'twitter-profile-images',
+          access_key_id: 'AKIAIOWM4KUWH3GSOK5Q',
+          secret_access_key:'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' ,
+          s3_region: 'Asia Pacific (Mumbai)',
+      }
+  }
+
+  Paperclip.options[:command_path] = "/usr/bin/"
 end

@@ -14,7 +14,8 @@ class AccountController < ApplicationController
   end
 
   def add_details
-    request.headers.each {|key,value| puts "#{key} : #{value}"}
+    puts params
+    # request.headers.each {|key,value| puts "#{key} : #{value}"}
     @user = Account.find_by(email:JWT.decode(request.headers["token"],Rails.application.secrets.secret_key_base).first["user"])
     render :json => @user.update(allowed_params_details) ? @user:@user.errors
   rescue => e
@@ -28,6 +29,6 @@ class AccountController < ApplicationController
   end
 
   def allowed_params_details
-    params.require(:details).permit(:name,:bio)
+    params.require(:details).permit(:name,:bio,:image)
   end
 end
