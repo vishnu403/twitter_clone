@@ -1,51 +1,34 @@
 class TweetController < ApplicationController
 
-  def index
+  before_action :get_user
+
+  def get_user
     logged_in_user = check_login_state()
-    @user = Account.find(params[:account_id])
-    if(@user === logged_in_user)
-      @tweets = (Tweet.paginate(:page => params[:page], :per_page => 5))
+    user = Account.find(params[:account_id])
+    @user = (logged_in_user === user) ? user:nil
+  end
+
+  def index
+      @tweets = (@user.tweets.paginate(:page => params[:page], :per_page => 5))
       render :json => @tweets ? @tweets:@tweets.errors
-    else
-      render :json => "invalid operation"
-    end
   end
 
   def create
-    logged_in_user = check_login_state()
-    @user = Account.find(params[:account_id])
-    if(@user === logged_in_user)
       params[:tweet][:account_id] = @user.id
-      @tweet = Tweet.new(allowed_params)
+      @tweet = @user.tweets.new(allowed_params)
       render :json => (@tweet.save ? @tweet:@tweet.errors)
-    else
-      render :json => "invalid operation"
-    end
   rescue => e
     render :json => e.message
   end
 
   def update
-    logged_in_user = check_login_state()
-    @user = Account.find(params[:account_id])
-    if(@user === logged_in_user)
-      @tweet = Tweet.find(params[:id])
+      @tweet = @user.tweets.find(params[:id])
       render :json => (@tweet.update(allowed_params) ? @tweet:@tweet.errors)
-    else
-      render :json => 'invalid operation'
-    end
   end
 
   def destroy
-    logged_in_user = check_login_state()
-    @user = Account.find(params[:account_id])
-    if( @user === logged_in_user)
-      @tweet = Tweet.find(params[:id])
+      @tweet = @user.tweets.find(params[:id])
       render :json => (@tweet.destroy() ? @tweet:@tweet.errors)
-    else
-      render :json => "invalid operation"
-    end
-
   rescue => e
     render :json => e.message
   end
