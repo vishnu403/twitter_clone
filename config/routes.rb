@@ -2,6 +2,7 @@ Rails.application.routes.draw do
 
   resources :account do
     resources :tweet
+
   end
 
 

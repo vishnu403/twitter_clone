@@ -39,9 +39,9 @@ RSpec.describe "TweetController", type: :request do
           "token" => "#{token}"
       }
       post "/account/#{user1.id}/tweet",{:tweet => {"content":"tweet 1"}},headers
-      post "/account/#{user1.id}/tweet",{:tweet =>{"content":"tweet 2"}},headers
-      tweet = JSON.parse(response.body)
-      delete "/account/#{user1.id}/tweet/#{tweet["id"]}",{},headers
+      post "/account/#{user1.id}/tweet",{:tweet => {"content":"tweet 2"}},headers
+      res = JSON.parse(response.body)
+      delete "/account/#{user1.id}/tweet/#{res["tweet"]["id"]}",{},headers
       expect(user1.get_tweet_count).to eql(1)
     end
 
@@ -54,10 +54,10 @@ RSpec.describe "TweetController", type: :request do
           "token" => "#{token}"
       }
       post "/account/#{user1.id}/tweet",{:tweet => {"content":"tweet 1"}},headers
-      post "/account/#{user1.id}/tweet",{:tweet =>{"content":"tweet 2"}},headers
-      tweet = JSON.parse(response.body)
-      delete "/account/34/tweet/#{tweet["id"]}",{},headers
-      expect(response.body).to eql("Couldn't find Account with 'id'=34")
+      post "/account/#{user1.id}/tweet",{:tweet => {"content":"tweet 2"}},headers
+      res = JSON.parse(response.body)
+      delete "/account/34/tweet/#{res["tweet"]["id"]}",{},headers
+      expect(JSON.parse(response.body)["user"]).to eql("invaliduser")
     end
 
     it "should say tweet not found as the tweet id is invalid" do
@@ -70,9 +70,9 @@ RSpec.describe "TweetController", type: :request do
       }
       post "/account/#{user1.id}/tweet",{:tweet => {"content":"tweet 1"}},headers
       post "/account/#{user1.id}/tweet",{:tweet =>{"content":"tweet 2"}},headers
-      tweet = JSON.parse(response.body)
+      res = JSON.parse(response.body)
       delete "/account/#{user1.id}/tweet/9999",{},headers
-      expect(response.body).to eql("Couldn't find Tweet with 'id'=9999")
+      expect(response.status).to eql(422)
     end
   end
   describe "updating or editing a tweet" do
@@ -86,9 +86,9 @@ RSpec.describe "TweetController", type: :request do
       }
       post "/account/#{user1.id}/tweet",{:tweet => {"content":"tweet 1"}},headers
       post "/account/#{user1.id}/tweet",{:tweet =>{"content":"tweet 2"}},headers
-      tweet = JSON.parse(response.body)
-      put "/account/#{user1.id}/tweet/#{tweet["id"]}",{:tweet => {"content":"tweet 1 edited content"}},headers
-      expect(JSON.parse(response.body)["content"]).to eql("tweet 1 edited content")
+      res = JSON.parse(response.body)
+      put "/account/#{user1.id}/tweet/#{res["tweet"]["id"]}",{:tweet => {"content":"tweet 1 edited content"}},headers
+      expect(JSON.parse(response.body)["updated_tweet"]["content"]).to eql("tweet 1 edited content")
     end
   end
   describe "paginating all tweets" do
@@ -110,8 +110,7 @@ RSpec.describe "TweetController", type: :request do
       post "/account/#{user1.id}/tweet",{:tweet =>{"content":"tweet 8"}},headers
 
       get "/account/#{user1.id}/tweet",{:page => 1},headers
-      puts
-      expect(JSON.parse(response.body).length).to eql(5)
+      expect(JSON.parse(response.body)["tweets"].length).to eql(5)
     end
     it "should return the last 3 tweets from page 2" do
       user1 = Account.create(email:"vishnupillai403@gmail.com", password:"helloworld",handle:"@vishnu")
@@ -131,8 +130,7 @@ RSpec.describe "TweetController", type: :request do
       post "/account/#{user1.id}/tweet",{:tweet =>{"content":"tweet 8"}},headers
 
       get "/account/#{user1.id}/tweet",{:page => 2},headers
-      puts
-      expect(JSON.parse(response.body).length).to eql(3)
+      expect(JSON.parse(response.body)["tweets"].length).to eql(3)
     end
   end
 end

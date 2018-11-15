@@ -1,40 +1,55 @@
 class TweetController < ApplicationController
 
-  before_action :get_user
+  before_action :authenticate_user
 
-  def get_user
-    logged_in_user = check_login_state()
-    user = Account.find(params[:account_id])
-    @user = (logged_in_user === user) ? user:nil
+  def authenticate_user
+    @user = Account.find_by(email:JWT.decode(request.headers["token"],Rails.application.secrets.secret_key_base).first["user"])
+    if @user.nil? or @user.id.to_s != params[:account_id].to_s
+      render :json => {:user => :invaliduser}, :status => 401
+    end
+  rescue => e
+    render :json => {:user => :invaliduser , :errors => e.message }, :status => 401
   end
 
   def index
-      @tweets = (@user.tweets.paginate(:page => params[:page], :per_page => 5))
-      render :json => @tweets ? @tweets:@tweets.errors
+      tweets = (@user.tweets.paginate(:page => params[:page], :per_page => 5))
+      if(tweets)
+        render :json => {:tweets => tweets, :status => :tweets_fetched}
+      else
+        render :json => {:tweets => tweets.errors, :status => :unable_to_get_tweets}
+      end
+
   end
 
   def create
-      params[:tweet][:account_id] = @user.id
-      @tweet = @user.tweets.new(allowed_params)
-      render :json => (@tweet.save ? @tweet:@tweet.errors)
-  rescue => e
-    render :json => e.message
+      tweet = @user.tweets.new(allowed_params)
+      if(tweet.save)
+        render :json => {:tweet => tweet , :status => :created}
+      else
+        render :json => {:tweet => tweet.errors} , :status => 422
+      end
   end
 
   def update
-      @tweet = @user.tweets.find(params[:id])
-      render :json => (@tweet.update(allowed_params) ? @tweet:@tweet.errors)
+      tweet = @user.tweets.find(params[:id])
+      if(tweet.update(allowed_params))
+        render :json => {:updated_tweet => tweet, :status => :updated }
+      else
+        render :json => {:error => tweet.errors}, :status => 422
+      end
+  rescue => e
+    render :json => {:errors => e.message}, :status => 422
   end
 
   def destroy
-      @tweet = @user.tweets.find(params[:id])
-      render :json => (@tweet.destroy() ? @tweet:@tweet.errors)
+      tweet = @user.tweets.find(params[:id])
+      if(tweet.destroy)
+        render :json => {:deleted_tweet => tweet, :status => :deleted }
+      else
+        render :json => {:errors => tweet.errors}, :status => 422
+      end
   rescue => e
-    render :json => e.message
-  end
-
-  def check_login_state()
-    Account.find_by(email:JWT.decode(request.headers["token"],Rails.application.secrets.secret_key_base).first["user"])
+    render :json => {:errors => e.message}, :status => 422
   end
 
   private

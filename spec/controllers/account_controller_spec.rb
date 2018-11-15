@@ -45,6 +45,7 @@ RSpec.describe "AccountController", type: :request do
       user1 = Account.create(email:"vishnupillai403@gmail.com", password:"helloworld",handle:"@vishnu")
       post "/login", {:user => {"email":"vishnupillai403@gmail.com","password":"helloworld"}}
       token = JSON.parse(response.body)["token"]
+      puts token
       headers = {
           "ACCEPT" => "application/json",     # This is what Rails 4 accepts
           "token" => "#{token}"

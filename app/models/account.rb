@@ -14,6 +14,6 @@ class Account < ActiveRecord::Base
   end
 
   def get_tweets_by_user(user_id)
-    Account.joins(:tweet).where("tweets.account_id = #{user_id}").count
+    Account.joins(:tweets).where("tweets.account_id = #{user_id}").count
   end
 end
