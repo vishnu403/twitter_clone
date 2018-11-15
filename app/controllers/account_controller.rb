@@ -4,7 +4,7 @@ class AccountController < ApplicationController
       @user = Account.new(allowed_params)
       render :json => (@user.save ? @user:@user.errors)
     else
-      render :json => {"password" => ["is too short (minimum is 6 characters)"]}
+      render :json => {"password" => ["is too short (minimum is 6 characters)"]},:status => 422
     end
   end
 
@@ -18,7 +18,7 @@ class AccountController < ApplicationController
     if(@user === logged_in_user)
       render :json => @user.update(allowed_params_details) ? @user:@user.errors
     else
-      render :json => "invalid update operation"
+      render :json => "invalid update operation",:status => 422
     end
   rescue => e
     render :json => e.message

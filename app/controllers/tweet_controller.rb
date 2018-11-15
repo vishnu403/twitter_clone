@@ -18,7 +18,6 @@ class TweetController < ApplicationController
       else
         render :json => {:tweets => tweets.errors, :status => :unable_to_get_tweets}
       end
-
   end
 
   def create
