@@ -1,8 +1,13 @@
 Rails.application.routes.draw do
 
   resources :account do
-    resources :tweet
-
+    resources :tweet do
+      resources :like
+      member do
+        put :retweet
+      end
+    end
+    resources :follower
   end
 
 

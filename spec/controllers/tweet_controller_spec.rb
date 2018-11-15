@@ -133,4 +133,32 @@ RSpec.describe "TweetController", type: :request do
       expect(JSON.parse(response.body)["tweets"].length).to eql(3)
     end
   end
+
+  describe "retweeting a tweet" do
+    it "give a positive response as created" do
+      user1 = Account.create(email:"vishnupillai403@gmail.com", password:"helloworld",handle:"@vishnu")
+      tweet = Tweet.create(content:"tweet content testing",account_id:5)
+      post "/login", {:user => {"email":"vishnupillai403@gmail.com","password":"helloworld"}}
+      token = JSON.parse(response.body)["token"]
+      headers = {
+          "ACCEPT" => "application/json",
+          "token" => "#{token}"
+      }
+      put "/account/#{user1.id}/tweet/#{tweet.id}/retweet",{},headers
+      expect(JSON.parse(response.body)["status"]).to eql("created")
+    end
+
+    it "give a 422 status code if the tweet does not exist" do
+      user1 = Account.create(email:"vishnupillai403@gmail.com", password:"helloworld",handle:"@vishnu")
+      # tweet = Tweet.create(content:"tweet content testing",account_id:5)
+      post "/login", {:user => {"email":"vishnupillai403@gmail.com","password":"helloworld"}}
+      token = JSON.parse(response.body)["token"]
+      headers = {
+          "ACCEPT" => "application/json",
+          "token" => "#{token}"
+      }
+      put "/account/#{user1.id}/tweet/23/retweet",{},headers
+      expect(response.status).to eql(422)
+    end
+  end
 end

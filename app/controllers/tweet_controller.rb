@@ -32,11 +32,21 @@ class TweetController < ApplicationController
 
   def update
       tweet = @user.tweets.find(params[:id])
+
       if(tweet.update(allowed_params))
         render :json => {:updated_tweet => tweet, :status => :updated }
       else
         render :json => {:error => tweet.errors}, :status => 422
       end
+  rescue => e
+    render :json => {:errors => e.message}, :status => 422
+  end
+
+  def retweet
+    puts params
+    tweet = Tweet.find(params[:id])
+    params[:tweet] = {:content => tweet.content}
+    re_tweet = create()
   rescue => e
     render :json => {:errors => e.message}, :status => 422
   end

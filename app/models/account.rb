@@ -1,5 +1,6 @@
 class Account < ActiveRecord::Base
   has_many :tweets
+  has_many :followers
   has_secure_password
   validates :email, format: { with: URI::MailTo::EMAIL_REGEXP }
   validates_uniqueness_of :handle
